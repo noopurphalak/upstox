@@ -2,19 +2,11 @@ import re
 
 
 EMAIL_REGEX = re.compile(r"^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$")
-PHONE_REGEX = re.complie(r"^[789][0-9]{9}$")
+PHONE_REGEX = re.compile(r"^[789][0-9]{9}$")
 
 
 class Address(object):
     '''Class representing an Address'''
-
-    address1 = ''
-    address2 = ''
-    landmark = ''
-    city = ''
-    country = ''
-    pincode = ''
-    people = []
 
     def __init__(self, **kwargs):
         validated = [
@@ -28,18 +20,11 @@ class Address(object):
         self.city = kwargs.get('city')
         self.country = kwargs.get('country')
         self.pincode = kwargs.get('pincode')
+        self.people = []
 
 
 class Person(object):
     '''Class representing a person'''
-
-    first_name = ''
-    last_name = ''
-    street_addresses = []
-    email_addresses = []
-    phone_numbers = []
-    groups = []
-    addressbooks = []
 
     def __init__(self, **kwargs):
         validated = [
@@ -50,6 +35,11 @@ class Person(object):
 
         self.first_name = kwargs.get('first_name')
         self.last_name = kwargs.get('last_name')
+        self.street_addresses = []
+        self.email_addresses = []
+        self.phone_numbers = []
+        self.groups = []
+        self.addressbooks = []
 
     def add_street_address(self, address):
         if not isinstance(address, Address):
@@ -72,8 +62,9 @@ class Person(object):
 class Group(object):
     '''Class representing a group of People'''
 
-    people = []
-    addressbooks = []
+    def __init__(self):
+        self.people = []
+        self.addressbooks = []
 
     def add_person(self, person):
         if not isinstance(person, Person):
@@ -85,8 +76,9 @@ class Group(object):
 class AddressBook(object):
     '''Class representing an addressbook'''
 
-    people = []
-    groups = []
+    def __init__(self):
+        self.people = []
+        self.groups = []
 
     def add_person(self, person):
         if not isinstance(person, Person):
@@ -105,6 +97,8 @@ class AddressBook(object):
         group.addressbooks.append(self)
 
     def _find_person_by_name(self, first_name, last_name, person_list):
+        if not person_list:
+            return []
         if last_name:
             selected = [person for person in person_list if person.first_name == first_name and person.last_name == last_name]
         else:
