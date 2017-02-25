@@ -1,6 +1,10 @@
 import re
 
 
+EMAIL_REGEX = re.compile(r"^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$")
+PHONE_REGEX = re.complie(r"^[789][0-9]{9}$")
+
+
 class Address(object):
     '''Class representing an Address'''
 
@@ -47,6 +51,23 @@ class Person(object):
         self.first_name = kwargs.get('first_name')
         self.last_name = kwargs.get('last_name')
 
+    def add_street_address(self, address):
+        if not isinstance(address, Address):
+            raise TypeError('This function only accepts object of type Address')
+
+        self.street_addresses.append(address)
+        address.people.append(self)
+
+    def add_email(self, email):
+        if not EMAIL_REGEX.match(email):
+            raise ValueError('Please input a proper email address')
+        self.email_addresses.append(email)
+
+    def add_phone(self, phone):
+        if not PHONE_REGEX.match(phone):
+            raise ValueError('Please input a proper 10 digit Phone Number')
+        self.phone_numbers.append(phone)
+
 
 class Group(object):
     '''Class representing a group of People'''
@@ -91,6 +112,13 @@ class AddressBook(object):
 
         return selected
 
+    def _is_email_present(self, email_string, email_list):
+        if not email_list:
+            return False
+        selected = [True if email_string in email else False for email in email_list]
+
+        return True in selected
+
     def find_person_by_name(self, first_name, last_name=''):
         selected_list = self._find_person_by_name(first_name, last_name, self.people)
 
@@ -100,4 +128,15 @@ class AddressBook(object):
         return selected_list
 
     def find_person_by_email(self, email_string):
-        pass
+        filtered_list = []
+
+        for person in self.people:
+            if self._is_email_present(email_string, person.email_addresses):
+                filtered_list.append(person)
+
+        for group in self.groups:
+            for person in group.people:
+                if self._is_email_present(email_string, person.email_addresses):
+                    filtered_list.append(person)
+
+        return filtered_list
